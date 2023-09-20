@@ -23,8 +23,6 @@ async function main() {
 
         const newWallets = _.difference(subjects, existingWallets);
 
-        console.log("New wallets", newWallets.length);
-
         const newUsers = [];
 
         for (const wallet of newWallets) {
@@ -35,6 +33,7 @@ async function main() {
         }
 
         if (newUsers.length > 0) {
+          console.log("New users", newUsers.map((u) => u.username).join(", "));
           await db.insert(newUsers).into("users").onConflict().ignore();
         }
 
@@ -43,7 +42,7 @@ async function main() {
         lastBlock = toBlock;
       }
     } catch (e) {
-      console.error(e);
+      console.error(e.message);
     }
 
     await new Promise((resolve) => setTimeout(resolve, 5000)); // sleep 5 seconds
