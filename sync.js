@@ -4,6 +4,8 @@ const _ = require("lodash");
 
 const getWalletInfo = (address) => fetch(`https://prod-api.kosetto.com/users/${address}`).then((res) => res.json());
 
+const SYNC_BATCH_SIZE = Number(process.env.SYNC_BATCH_SIZE) || 100;
+
 async function main() {
   let [lastBlock = 2430440] = await db.pluck("value").from("config").where("key", "sync");
 
@@ -11,7 +13,7 @@ async function main() {
     try {
       const currentBlock = await provider.getBlockNumber();
       while (lastBlock < currentBlock) {
-        const toBlock = Math.min(lastBlock + 100, currentBlock);
+        const toBlock = Math.min(lastBlock + SYNC_BATCH_SIZE, currentBlock);
         console.log("Sync", lastBlock);
 
         const events = await ft.queryFilter(ft.filters.Trade(), lastBlock + 1, toBlock);
@@ -20,6 +22,8 @@ async function main() {
         const existingWallets = await db.pluck("wallet").from("users").whereIn("wallet", subjects);
 
         const newWallets = _.difference(subjects, existingWallets);
+
+        console.log("New wallets", newWallets.length);
 
         const newUsers = [];
 
