@@ -1,14 +1,15 @@
 const express = require("express");
 const router = express.Router();
 
+const db = require("../db");
+
 router.get("/users/:username", async (req, res) => {
   const { username } = req.params;
 
-  // TODO: look up user in db
-  const user = { wallet: "xxxx" };
+  const [wallet] = await db.pluck("wallet").from("users").where("username", username.toLowerCase());
 
-  if (user) {
-    res.json(user);
+  if (wallet) {
+    res.json({ wallet });
   } else {
     res.status(404).end();
   }
