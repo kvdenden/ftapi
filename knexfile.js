@@ -4,10 +4,7 @@ module.exports = {
   client: "pg",
   connection: {
     connectionString: process.env.DATABASE_URL,
-  },
-  pool: {
-    min: 2,
-    max: 10,
+    ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
   },
   migrations: {
     directory: __dirname + "/db/migrations",
