@@ -1,12 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
+const { isAddress, getAddress } = require("ethers");
 const db = require("../db");
 
 router.get("/search", async (req, res) => {
   const { q } = req.query;
 
-  const results = await db.select("username", "wallet").from("users").where("username", "like", `%${q.toLowerCase()}%`);
+  const results = isAddress(q)
+    ? await db.select("username", "wallet").from("users").where("wallet", getAddress(q))
+    : await db.select("username", "wallet").from("users").where("username", "like", `%${q.toLowerCase()}%`);
+
+  console.log("results", results);
 
   res.json({ q, results });
 });
